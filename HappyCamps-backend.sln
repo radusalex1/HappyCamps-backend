@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyCamps-backend", "HappyCamps-backend.csproj", "{D9B5D5F3-9246-4B0D-B5D0-D5120A061EBE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9B5D5F3-9246-4B0D-B5D0-D5120A061EBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9B5D5F3-9246-4B0D-B5D0-D5120A061EBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9B5D5F3-9246-4B0D-B5D0-D5120A061EBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9B5D5F3-9246-4B0D-B5D0-D5120A061EBE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {286113CF-FDD0-4705-BFE9-E7BD5494C53A}
+	EndGlobalSection
+EndGlobal
