@@ -27,22 +27,23 @@ builder.Services.AddDbContext<HappyCampsDataContext>(
     o => o.UseNpgsql(builder.Configuration.GetConnectionString("HappyCampsDb"))
 );
 
-builder.Services.AddAuthentication(opt => {
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+builder.Services.AddAuthentication(x => {
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(options =>
     {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "https://localhost:5001",
-            ValidAudience = "https://localhost:5001",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("veryverysecret.....")),
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ClockSkew = TimeSpan.Zero,
         };
+
     });
 var app = builder.Build();
 
@@ -54,9 +55,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseCors("MyPolicy");
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
