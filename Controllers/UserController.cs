@@ -17,35 +17,41 @@ namespace HappyCamps_backend.Controllers
     {
         private readonly IUserService userService;
         private readonly IValidateNewUser validateNewUser;
-        public UserController(IUserService userService, IValidateNewUser validateNewUser)
+        private readonly IValidateUserLoginDTO validateUserLoginDTO;
+
+        public UserController(IUserService userService, IValidateNewUser validateNewUser,IValidateUserLoginDTO validateUserLoginDTO)
         {
             this.userService = userService;
             this.validateNewUser = validateNewUser;
+            this.validateUserLoginDTO = validateUserLoginDTO;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
-            if (userLoginDto == null)
+            if (!validateUserLoginDTO.IsValid(userLoginDto))
             {
-                return BadRequest();
+                return BadRequest(new
+                {
+                    Message = "User is not valid."
+                });
             }
 
             var user = userService.GetUserByEmail(userLoginDto.Email);
 
             if (user == null)
             {
-                return Ok(new
+                return BadRequest(new
                 {
-                    Message = "Email incorrect"
+                    Message = "Email incorrect."
                 });
             }
 
             if (!PasswordHasher.VerifyPassword(userLoginDto.Password, user.Password))
             {
-                return Ok(new
+                return BadRequest(new
                 {
-                    Message = "Password incorrect"
+                    Message = "Password incorrect."
                 });
             }
 
@@ -56,29 +62,34 @@ namespace HappyCamps_backend.Controllers
             return Ok(new
             {
                 Token = TokenizedUser.Token,
-                Message = "login success"
+                Message = "Login success."
             });
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user)
         {
-            if (user == null)
-            {
-                return BadRequest();
-            }
-
-            if (!await this.validateNewUser.HasUniqueEmail(user.Email))
+            if(!await validateNewUser.IsValid(user))
             {
                 return BadRequest(new
                 {
-                    Message = "Email already exists"
+                    Message = "Invalid new user."
+                });
+            }
+
+            if (!await validateNewUser.IsUserUnique(user))
+            {
+                return BadRequest(new
+                {
+                    Message = "User with this credentials already exists."
                 });
             }
 
             user.Password = PasswordHasher.HashPassword(user.Password);
 
-            if(!userService.SaveNewUser(user))
+            bool isUserSaved = userService.SaveNewUser(user);
+
+            if (!isUserSaved)
             {
                 return BadRequest(new
                 {
@@ -95,10 +106,12 @@ namespace HappyCamps_backend.Controllers
         private string CreateJwtToken(User user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
+
             var key = System.Text.Encoding.ASCII.GetBytes("veryverysecret.....");
+
             var identity = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.Role,user.Role),
+                new Claim(ClaimTypes.Role,user.RoleType.ToString()),
                 new Claim(ClaimTypes.Name,$"{user.FirstName} {user.LastName}")
             });
 

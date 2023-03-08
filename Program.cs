@@ -47,6 +47,7 @@ builder.Services.AddAuthentication(x => {
 
 builder.Services.AddTransient<IValidateNewUser,ValidateNewUser>();
 builder.Services.AddTransient<IUserService,UserService>();
+builder.Services.AddTransient<IValidateUserLoginDTO,ValidateUserLoginDTO>();
 
 var app = builder.Build();
 

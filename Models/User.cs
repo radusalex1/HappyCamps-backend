@@ -1,5 +1,6 @@
 ﻿using HappyCamps_backend.Common;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HappyCamps_backend.Models
 {
@@ -16,13 +17,15 @@ namespace HappyCamps_backend.Models
 
         public string Password { get; set; }
 
-        public DataType BirthDate { get; set; }
+        [Column(TypeName = "date")]
+        public DateTime BirthDate { get; set; }
 
         public string PhoneNumber { get; set; }
 
         public string Instagram { get; set; }
 
-        public string Role { get; set; }
+        [Column("Role")]
+        public Role RoleType { get; set; }
 
         public bool Accepted { get; set; } = false;
     }

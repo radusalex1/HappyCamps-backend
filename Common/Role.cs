@@ -1,6 +1,6 @@
 ﻿namespace HappyCamps_backend.Common
 {
-    public enum Roles
+    public enum Role
     {
         VOLUNTEER,
         ORGANIZER,
