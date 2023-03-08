@@ -8,7 +8,7 @@ namespace HappyCamps_backend.Models
         [Key]
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string FirstName { get; set; }
 
         public string LastName { get; set; }
 
@@ -16,8 +16,14 @@ namespace HappyCamps_backend.Models
 
         public string Password { get; set; }
 
+        public DataType BirthDate { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public string Instagram { get; set; }
+
         public string Role { get; set; }
 
-        
+        public bool Accepted { get; set; } = false;
     }
 }

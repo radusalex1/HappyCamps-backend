@@ -2,6 +2,7 @@
 using HappyCamps_backend.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyCamps_backend.Migrations
 {
     [DbContext(typeof(HappyCampsDataContext))]
-    partial class HappyCampsDataContextModelSnapshot : ModelSnapshot
+    [Migration("20230308174924_AddedFidlsToUser")]
+    partial class AddedFidlsToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,9 +31,6 @@ namespace HappyCamps_backend.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Accepted")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("BirthDate")
                         .HasColumnType("integer");

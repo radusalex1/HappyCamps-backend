@@ -3,7 +3,7 @@ using HappyCamps_backend.Context;
 using HappyCamps_backend.DTOs;
 using HappyCamps_backend.Helpers;
 using HappyCamps_backend.Models;
-using Microsoft.AspNetCore.Authorization;
+using HappyCamps_backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,10 +15,12 @@ namespace HappyCamps_backend.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly HappyCampsDataContext _authContext;
-        public UserController(HappyCampsDataContext authContext)
+        private readonly IUserService userService;
+        private readonly IValidateNewUser validateNewUser;
+        public UserController(IUserService userService, IValidateNewUser validateNewUser)
         {
-            this._authContext = authContext;
+            this.userService = userService;
+            this.validateNewUser = validateNewUser;
         }
 
         [HttpPost("login")]
@@ -29,19 +31,22 @@ namespace HappyCamps_backend.Controllers
                 return BadRequest();
             }
 
-            var user = _authContext.Users
-                .FirstOrDefault(x => x.Email == userLoginDto.Email);
+            var user = userService.GetUserByEmail(userLoginDto.Email);
 
+            if (user == null)
+            {
+                return Ok(new
+                {
+                    Message = "Email incorrect"
+                });
+            }
 
             if (!PasswordHasher.VerifyPassword(userLoginDto.Password, user.Password))
             {
-                if (user == null)
+                return Ok(new
                 {
-                    return NotFound(new
-                    {
-                        message = "Password incorrect"
-                    });
-                }
+                    Message = "Password incorrect"
+                });
             }
 
             var TokenizedUser = new TokenizedUser(user);
@@ -62,9 +67,25 @@ namespace HappyCamps_backend.Controllers
             {
                 return BadRequest();
             }
+
+            if (!await this.validateNewUser.HasUniqueEmail(user.Email))
+            {
+                return BadRequest(new
+                {
+                    Message = "Email already exists"
+                });
+            }
+
             user.Password = PasswordHasher.HashPassword(user.Password);
-            _authContext.Users.Add(user);
-            _authContext.SaveChanges();
+
+            if(!userService.SaveNewUser(user))
+            {
+                return BadRequest(new
+                {
+                    Message = "Something went wrong when registering"
+                });
+            }
+
             return Ok(new
             {
                 message = "user registered"
@@ -78,10 +99,10 @@ namespace HappyCamps_backend.Controllers
             var identity = new ClaimsIdentity(new Claim[]
             {
                 new Claim(ClaimTypes.Role,user.Role),
-                new Claim(ClaimTypes.Name,$"{user.Name} {user.LastName}")
+                new Claim(ClaimTypes.Name,$"{user.FirstName} {user.LastName}")
             });
 
-            var credentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -94,13 +115,5 @@ namespace HappyCamps_backend.Controllers
 
             return jwtTokenHandler.WriteToken(token);
         }
-
-        [Authorize]
-        [HttpGet("/GetAll")]
-        public async Task<ActionResult<User>> GetAllUsers()
-        {
-            return Ok( _authContext.Users.ToList());
-        }
-
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using HappyCamps_backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,6 @@ builder.Services.AddCors(option =>
         .AllowAnyMethod();
     });
 });
-
 
 builder.Services.AddDbContext<HappyCampsDataContext>(
     o => o.UseNpgsql(builder.Configuration.GetConnectionString("HappyCampsDb"))
@@ -43,8 +43,11 @@ builder.Services.AddAuthentication(x => {
             ValidateIssuer = false,
             ClockSkew = TimeSpan.Zero,
         };
-
     });
+
+builder.Services.AddTransient<IValidateNewUser,ValidateNewUser>();
+builder.Services.AddTransient<IUserService,UserService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
