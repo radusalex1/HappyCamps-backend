@@ -2,8 +2,8 @@
 {
     public enum Role
     {
-        VOLUNTEER,
-        ORGANIZER,
-        ADMIN,
+        VOLUNTEER = 0,
+        ORGANIZER = 1,
+        ADMIN = 2,
     }
 }

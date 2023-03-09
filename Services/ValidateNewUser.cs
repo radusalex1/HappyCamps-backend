@@ -35,6 +35,11 @@ namespace HappyCamps_backend.Services
                 return false;
             }
 
+            if (string.IsNullOrEmpty(user.City))
+            {
+                return false;
+            }
+
             if (!IsEmailValid(user.Email))
             {
                 return false;

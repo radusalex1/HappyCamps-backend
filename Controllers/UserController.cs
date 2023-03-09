@@ -73,7 +73,7 @@ namespace HappyCamps_backend.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "Invalid new user."
+                    Message = "Invalid new user or null fields."
                 });
             }
 
@@ -99,7 +99,7 @@ namespace HappyCamps_backend.Controllers
 
             return Ok(new
             {
-                message = "user registered"
+                message = "Register successful."
             });
         }
 
