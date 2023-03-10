@@ -1,4 +1,5 @@
 ﻿using Arch.EntityFrameworkCore;
+using HappyCamps_backend.Common;
 using HappyCamps_backend.Context;
 using HappyCamps_backend.DTOs;
 using HappyCamps_backend.Helpers;
@@ -19,7 +20,7 @@ namespace HappyCamps_backend.Controllers
         private readonly IValidateNewUser validateNewUser;
         private readonly IValidateUserLoginDTO validateUserLoginDTO;
 
-        public UserController(IUserService userService, IValidateNewUser validateNewUser,IValidateUserLoginDTO validateUserLoginDTO)
+        public UserController(IUserService userService, IValidateNewUser validateNewUser, IValidateUserLoginDTO validateUserLoginDTO)
         {
             this.userService = userService;
             this.validateNewUser = validateNewUser;
@@ -67,9 +68,11 @@ namespace HappyCamps_backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] User user)
+        public async Task<IActionResult> Register([FromBody] UserRegisterDTO userRegisterDTO)
         {
-            if(!await validateNewUser.IsValid(user))
+            var user = ToUser(userRegisterDTO);
+
+            if (!await validateNewUser.IsValid(user))
             {
                 return BadRequest(new
                 {
@@ -127,6 +130,39 @@ namespace HappyCamps_backend.Controllers
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);
 
             return jwtTokenHandler.WriteToken(token);
+        }
+
+        private User ToUser(UserRegisterDTO userRegisterDTO)
+        {
+            User user = new User
+            {
+                FirstName = userRegisterDTO.FirstName,
+                LastName = userRegisterDTO.LastName,
+                Email = userRegisterDTO.Email,
+                Password = userRegisterDTO.Password,
+                BirthDate = userRegisterDTO.BirthDate,
+                PhoneNumber = userRegisterDTO.PhoneNumber,
+                City = userRegisterDTO.City,
+                Instagram = userRegisterDTO.Instagram,
+                RoleType = SetRole(userRegisterDTO.Role),
+                Points = 0,
+                Accepted = userRegisterDTO.Role == Role.VOLUNTEER.ToString() ? true:false
+            };
+
+            return user;
+        }
+
+        private Role SetRole(string roleFromFrontend)
+        {
+            switch (roleFromFrontend)
+            {
+                case "ADMIN":
+                    return Role.ADMIN;
+                case "VOLUNTEER":
+                    return Role.VOLUNTEER;
+                default:
+                    return Role.ORGANIZER;
+            }
         }
     }
 }

@@ -29,6 +29,8 @@ namespace HappyCamps_backend.Models
         [Column("Role")]
         public Role RoleType { get; set; }
 
+        public int Points { get; set; }
+
         public bool Accepted { get; set; } = false;
     }
 }
