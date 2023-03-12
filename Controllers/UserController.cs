@@ -1,10 +1,6 @@
-﻿using Arch.EntityFrameworkCore;
-using AutoMapper;
-using HappyCamps_backend.Common;
-using HappyCamps_backend.Context;
+﻿using HappyCamps_backend.Converters;
 using HappyCamps_backend.DTOs;
 using HappyCamps_backend.Helpers;
-using HappyCamps_backend.Mapper;
 using HappyCamps_backend.Models;
 using HappyCamps_backend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -21,20 +17,14 @@ namespace HappyCamps_backend.Controllers
         private readonly IUserService userService;
         private readonly IValidateNewUser validateNewUser;
         private readonly IValidateUserLoginDTO validateUserLoginDTO;
-        private readonly IMapper _mapper;
+        private Converter _converter;
 
         public UserController(IUserService userService, IValidateNewUser validateNewUser, IValidateUserLoginDTO validateUserLoginDTO)
         {
             this.userService = userService;
             this.validateNewUser = validateNewUser;
             this.validateUserLoginDTO = validateUserLoginDTO;
-
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<MappingProfile>();
-            });
-
-            _mapper = config.CreateMapper();
+            _converter = new Converter();
         }
 
         [HttpPost("login")]
@@ -80,7 +70,7 @@ namespace HappyCamps_backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterDTO userRegisterDTO)
         {
-            var user = ToUser(userRegisterDTO);
+            var user = _converter.ToUser(userRegisterDTO);
 
             if (!await validateNewUser.IsValid(user))
             {
@@ -140,17 +130,6 @@ namespace HappyCamps_backend.Controllers
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);
 
             return jwtTokenHandler.WriteToken(token);
-        }
-
-        private User ToUser(UserRegisterDTO userRegisterDTO)
-        {
-            var user = _mapper.Map<User>(userRegisterDTO);
-
-            user.Points = 0;
-
-            user.Accepted = user.RoleType == Role.VOLUNTEER ? true : false;
-
-            return user;
         }
     }
 }
