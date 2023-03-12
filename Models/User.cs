@@ -22,10 +22,14 @@ namespace HappyCamps_backend.Models
 
         public string PhoneNumber { get; set; }
 
+        public string City { get; set; }
+
         public string Instagram { get; set; }
 
         [Column("Role")]
         public Role RoleType { get; set; }
+
+        public int Points { get; set; }
 
         public bool Accepted { get; set; } = false;
     }

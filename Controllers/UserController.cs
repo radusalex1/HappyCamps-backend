@@ -1,7 +1,10 @@
 ﻿using Arch.EntityFrameworkCore;
+using AutoMapper;
+using HappyCamps_backend.Common;
 using HappyCamps_backend.Context;
 using HappyCamps_backend.DTOs;
 using HappyCamps_backend.Helpers;
+using HappyCamps_backend.Mapper;
 using HappyCamps_backend.Models;
 using HappyCamps_backend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +21,20 @@ namespace HappyCamps_backend.Controllers
         private readonly IUserService userService;
         private readonly IValidateNewUser validateNewUser;
         private readonly IValidateUserLoginDTO validateUserLoginDTO;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserService userService, IValidateNewUser validateNewUser,IValidateUserLoginDTO validateUserLoginDTO)
+        public UserController(IUserService userService, IValidateNewUser validateNewUser, IValidateUserLoginDTO validateUserLoginDTO)
         {
             this.userService = userService;
             this.validateNewUser = validateNewUser;
             this.validateUserLoginDTO = validateUserLoginDTO;
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<MappingProfile>();
+            });
+
+            _mapper = config.CreateMapper();
         }
 
         [HttpPost("login")]
@@ -67,13 +78,15 @@ namespace HappyCamps_backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] User user)
+        public async Task<IActionResult> Register([FromBody] UserRegisterDTO userRegisterDTO)
         {
-            if(!await validateNewUser.IsValid(user))
+            var user = ToUser(userRegisterDTO);
+
+            if (!await validateNewUser.IsValid(user))
             {
                 return BadRequest(new
                 {
-                    Message = "Invalid new user."
+                    Message = "Invalid new user or null fields."
                 });
             }
 
@@ -99,7 +112,7 @@ namespace HappyCamps_backend.Controllers
 
             return Ok(new
             {
-                message = "user registered"
+                message = "Register successful."
             });
         }
 
@@ -127,6 +140,17 @@ namespace HappyCamps_backend.Controllers
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);
 
             return jwtTokenHandler.WriteToken(token);
+        }
+
+        private User ToUser(UserRegisterDTO userRegisterDTO)
+        {
+            var user = _mapper.Map<User>(userRegisterDTO);
+
+            user.Points = 0;
+
+            user.Accepted = user.RoleType == Role.VOLUNTEER ? true : false;
+
+            return user;
         }
     }
 }

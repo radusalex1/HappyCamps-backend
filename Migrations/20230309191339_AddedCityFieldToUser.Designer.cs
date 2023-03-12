@@ -3,6 +3,7 @@ using System;
 using HappyCamps_backend.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyCamps_backend.Migrations
 {
     [DbContext(typeof(HappyCampsDataContext))]
-    partial class HappyCampsDataContextModelSnapshot : ModelSnapshot
+    [Migration("20230309191339_AddedCityFieldToUser")]
+    partial class AddedCityFieldToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,9 +66,6 @@ namespace HappyCamps_backend.Migrations
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("Points")
-                        .HasColumnType("integer");
 
                     b.Property<string>("RoleType")
                         .IsRequired()
